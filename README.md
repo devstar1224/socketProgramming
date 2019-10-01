@@ -1,2 +1,2 @@
 # socketProgramming
-trainning socketProgramming
+trainning socketProgramming in linux
