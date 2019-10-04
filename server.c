@@ -4,7 +4,8 @@
 #include <string.h>
 
 #define PORT 10000
-
+char * delsp(char * dest, char * cmd);
+int cmp(char *str);
 char buffer[100] = "Hi, I'm server.\n";
 char rcvBuffer[100];
 int main(){
@@ -36,28 +37,70 @@ int main(){
 		c_socket = accept(s_socket, (struct sockaddr *)&c_addr, &len); 
 		printf("/client is connected\n");
 		while(1){
-			n = read(c_socket, rcvBuffer, sizeof(rcvBuffer));
+			n=read(c_socket, rcvBuffer, sizeof(rcvBuffer));
 			printf("rcvBuffer: %s\n", rcvBuffer);
-			
-			if(!strncasecmp(rcvBuffer, "hello", 5)){
+
+			if(!strncmp(rcvBuffer, "hello", 5)){
 				char rcvBf[100] = "Hello, nice meet you";
 				write(c_socket, rcvBf, strlen(rcvBf));	
-			}else if(!strncasecmp(rcvBuffer, "what is your name?", 18)){
+			}
+
+			else if(!strncmp(rcvBuffer, "what is your name?", 18)){
 				char rcvBf[100] = "My name is Linux!";
 				write(c_socket, rcvBf, strlen(rcvBf));
-			}else if(!strncasecmp(rcvBuffer, "How old are you?", 16)){
+			}
+
+			else if(!strncmp(rcvBuffer, "how old are you?", 16)){
 				char rcvBf[100] = "I'm 59 years old";
 				write(c_socket, rcvBf, strlen(rcvBf));
-			}else if(!strncasecmp(rcvBuffer, "quit", 4)|| !strncasecmp(rcvBuffer, "kill server", 11)){
+			}
+
+			else if(!strncmp(rcvBuffer, "quit", 4)|| !strncmp(rcvBuffer, "kill server", 11)){
 				break;
-			}else
-			 write(c_socket, "Error", 5); 
+			}
+
+			else if(!strncmp(rcvBuffer,"strlen", 6)){
+				char * bf = delsp(rcvBuffer, "strlen");
+				write(c_socket, bf, strlen(bf)-1);
+			}
+			else if(!strncmp(rcvBuffer,"strcmp", 6)){
+				char * bf = delsp(rcvBuffer, "strcmp");
+				int last = cmp(bf);
+				sprintf(bf, " %d\n", last);
+				write(c_socket, bf, strlen(bf));		
+			}else{
+			 write(c_socket, "Error", strlen(rcvBuffer)); 
+			}
 		}
 
+		
 		close(c_socket);
 		if (strncasecmp(rcvBuffer, "kill server", 11) == 0)
 			break;
 	}
 	close(s_socket);
 	return 0;	
+}
+
+char * delsp(char * dest, char * cmd){
+	int n = 0;
+	while( * dest == ' ' || *cmd == ' '){
+		n++;
+		dest++;
+		cmd++;
+	}
+	while(*dest!='\0' && *cmd != '\0' && *dest == *cmd){
+		n++;
+		dest++;
+		cmd++;
+	}
+	return dest;
+}
+
+int cmp(char *str){
+	int result;
+	char * t1 = strtok(str," ");
+	str = strtok(NULL, "\n");
+	result = strcmp(t1, str);
+	return result;
 }
