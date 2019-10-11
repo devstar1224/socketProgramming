@@ -61,7 +61,10 @@ int main(){
 
 			else if(!strncmp(rcvBuffer,"strlen", 6)){
 				char * bf = delsp(rcvBuffer, "strlen");
-				write(c_socket, bf, strlen(bf)-1);
+				char chlen_str[100];
+				sprintf(chlen_str,"%d\n",strlen(bf)-2);
+				strcpy(bf, chlen_str);
+				write(c_socket, bf, strlen(bf));
 			}
 			else if(!strncmp(rcvBuffer,"strcmp", 6)){
 				char * bf = delsp(rcvBuffer, "strcmp");
