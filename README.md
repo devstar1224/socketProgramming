@@ -1,2 +1,5 @@
-# socketProgramming
-trainning socketProgramming in linux
+###컴퓨터소프트웨어공학과 2학년 2학기 소켓프로그래밍 YC반
+
+------------
+
+2019년 2학년 2학기 실습파일입니다.
