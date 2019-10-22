@@ -5,7 +5,7 @@
 
 #define PORT 10000
 char * delsp(char * dest, char * cmd);
-char * rwFile(char *fileName, char *mode, char *content);
+// char rwFile(char *fileName, char *mode, char *content);
 int cmp(char *str);
 char buffer[100] = "Hi, I'm server.\n";
 char rcvBuffer[100];
@@ -72,24 +72,39 @@ int main(){
 				int last = cmp(bf);
 				sprintf(bf, " %d\n", last);
 				write(c_socket, bf, strlen(bf));		
-			}else if(!strncmp(rcvBuffer, "readfile", 8)){
+			}else if(!strncmp(rcvBuffer, "readfile ", 9)){
 				char * token;
-				char * str[2];
-				int idx = 0;
 				token = strtok(rcvBuffer, " ");
-				while(token != NULL){
-					str[idx] = token;
-					idx++;
-					token = strtok(NULL, " ");
+				token = strtok(NULL, " ");
+				FILE * fp = fopen(token, "r");
+				char sendBf[100];
+				char bf[100];
+				if(fp){
+					memset(sendBf, 0, 100);
+					while(fgets(bf, 100, (FILE *) fp)){
+						strcat(sendBf, bf);
+					}
 				}
-				printf("%s \n",rwFile(str[1], "r", NULL));
+				fclose(fp);
+				write(c_socket, sendBf, strlen(sendBf));
+			}else if(!strncmp(rcvBuffer, "exec ", 5)){
+				char * command;
+				char * token;
+				token = strtok(rcvBuffer," ");
+				strtok(NULL, "\0");
+				printf("command : %s", command);
+				int result = system(command);
+				if(!result){
+					sprintf(buffer, "[%s] Execute finish", command);	
+				}else{
+					sprintf(buffer, "[%s] Execute failed", command);
+				}
+				write(c_socket, buffer, strlen(buffer));
 			}
 			else{
 			 write(c_socket, "Error", strlen(rcvBuffer)); 
 			}
 		}
-
-		
 		close(c_socket);
 		if (strncasecmp(rcvBuffer, "kill server", 11) == 0)
 			break;
@@ -97,24 +112,24 @@ int main(){
 	close(s_socket);
 	return 0;	
 }
-
-
-char * rwFile(char *fileName, char *mode, char *content){
+/*
+char rwFile(char *fileName, char *mode, char *content){
 	
 //	printf("pass : %s %s %s \n", fileName, mode, content);
 	FILE *fp;
-	char buff[255];
-	static char sendBf[255];
+	char bf[100];
+	static char sendBf[100];
 	fp = fopen(fileName, mode);
 	if(fp){
-		while(fgets(buff, 255, (FILE *) fp)){
-			sprintf(sendBf ,"%s", buff);				
+		while(fgets(bf, 100, (FILE *) fp)){
+			strcat(sendBf, bf);
 		}
+
 	}
 	fclose(fp);
 	return sendBf;
 }
-
+*/
 
 char * delsp(char * dest, char * cmd){
 	int n = 0;
