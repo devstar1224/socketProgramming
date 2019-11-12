@@ -2,20 +2,25 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <string.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 #define PORT 10000
+
+void sig_handler();
 void message(int c_socket);
 char * delsp(char * dest, char * cmd);
 // char rwFile(char *fileName, char *mode, char *content);
 int cmp(char *str);
 char buffer[100] = "Hi, I'm server.\n";
 char rcvBuffer[100];
+int num = 0;
 int main(){
 	int c_socket, s_socket;
 	struct sockaddr_in s_addr, c_addr;
 	int len;
 	int n;
-
+	signal(SIGCHLD, sig_handler);
 	s_socket = socket(PF_INET, SOCK_STREAM, 0);
 	
 	memset(&s_addr, 0, sizeof(s_addr)); 
@@ -38,15 +43,15 @@ int main(){
 		len = sizeof(c_addr);
 		printf("Wait connect client\n");
 		c_socket = accept(s_socket, (struct sockaddr *)&c_addr, &len); 
-		
+		num++;
 		if((pid = fork())> 0){
-		printf("/client is connected\n");
-		close(c_socket);
-		continue;
+			printf("/client is connected now connected => %d\n", num);
+			close(c_socket);
+			continue;
 		}else if(pid == 0){
-		message(c_socket);
-		close(s_socket);
-		exit(0);
+			message(c_socket);
+			close(s_socket);
+			exit(0);
 		}
 	}
 	close(s_socket);
@@ -147,4 +152,13 @@ int cmp(char *str){
 	str = strtok(NULL, "\n");
 	result = strcmp(t1, str);
 	return result;
+}
+
+void sig_handler(int signo){
+	int pid;
+	int status;
+	pid = wait(&status);
+	printf("pid[%d] is terminated.status = %d\n", pid, status);
+	num--;
+	printf("now connected client : %d \n", num);
 }
