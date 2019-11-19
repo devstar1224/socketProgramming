@@ -30,6 +30,6 @@ void main(){
 	pthread_join(thread_id[0], (void **)&status[0]);
 	pthread_join(thread_id[1], (void **)&status[1]);
 	pthread_join(thread_id[2], (void **)&status[2]);
-
+	pthread_mutex_destroy(&mutex);
 	printf("Main thread\n");	
 }
