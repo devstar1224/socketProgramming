@@ -2,13 +2,17 @@
 #include <pthread.h>
 
 int ncount = 0;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void *do_sum2(void *data){
 	int i ;
 	int n = *((int * ) data);
 	for(i=0;i<n;i++){
-		printf("[%x] sum : %d \n " ,pthread_self(), ncount);
+		pthread_mutex_lock(&mutex);	
 		ncount++;
+		pthread_mutex_unlock(&mutex);	
+		printf("[%x] sum : %d \n " ,pthread_self(), ncount);
+
 	}
 
 }
